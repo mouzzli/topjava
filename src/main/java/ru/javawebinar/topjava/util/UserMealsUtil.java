@@ -54,9 +54,10 @@ public class UserMealsUtil {
         List<UserMealWithExcess> result = new ArrayList<>();
         meals.forEach(userMeal -> {
             if (isBetweenHalfOpen(getTime(userMeal), startTime, endTime)) {
-                result.add(createUserMealWithExcess(userMeal,dayCalories.get(getDate(userMeal)) > caloriesPerDay));
+                result.add(createUserMealWithExcess(userMeal, dayCalories.get(getDate(userMeal)) > caloriesPerDay));
             }
         });
+
         return result;
     }
 
@@ -76,24 +77,17 @@ public class UserMealsUtil {
         List<UserMealWithExcess> result = new ArrayList<>();
 
         for (UserMeal userMeal : meals) {
-            dayCalories.merge(getDate(userMeal), userMeal.getCalories(), Integer::sum);
-
-            if(dayExcess.putIfAbsent(getDate(userMeal), new AtomicBoolean(dayCalories.get(getDate(userMeal)) > caloriesPerDay)) != null){
-                dayExcess.get(getDate(userMeal)).set(dayCalories.get(getDate(userMeal)) > caloriesPerDay);
-            }
-
-            if (isBetweenHalfOpen(getTime(userMeal), startTime, endTime)) {
-                result.add(createUserMealWithExcess(userMeal, dayExcess.get(getDate(userMeal))));
-            }
+            calcExcessAndFilteredByTime(dayCalories, dayExcess, result, userMeal, startTime, endTime, caloriesPerDay);
         }
+
         return result;
     }
 
     public static List<UserMealWithExcess> optionalFilteredByStreams(List<UserMeal> meals, LocalTime startTime, LocalTime endTime, int caloriesPerDay) {
 
-        class SumExcessCollector implements Collector<UserMeal,List<UserMealWithExcess>, List<UserMealWithExcess>> {
-            private final  Map<LocalDate, Integer> dayCalories = new HashMap<>();
-            private final  Map<LocalDate, AtomicBoolean> dayExcess = new HashMap<>();
+        class SumExcessCollector implements Collector<UserMeal, List<UserMealWithExcess>, List<UserMealWithExcess>> {
+            private final Map<LocalDate, Integer> dayCalories = new HashMap<>();
+            private final Map<LocalDate, AtomicBoolean> dayExcess = new HashMap<>();
 
             @Override
             public Supplier<List<UserMealWithExcess>> supplier() {
@@ -102,17 +96,7 @@ public class UserMealsUtil {
 
             @Override
             public BiConsumer<List<UserMealWithExcess>, UserMeal> accumulator() {
-                return (result, userMeal) -> {
-                    dayCalories.merge(getDate(userMeal), userMeal.getCalories(), Integer::sum);
-
-                    if(dayExcess.putIfAbsent(getDate(userMeal), new AtomicBoolean(dayCalories.get(getDate(userMeal)) > caloriesPerDay)) != null){
-                        dayExcess.get(getDate(userMeal)).set(dayCalories.get(getDate(userMeal)) > caloriesPerDay);
-                    }
-
-                    if (isBetweenHalfOpen(getTime(userMeal), startTime, endTime)) {
-                        result.add(createUserMealWithExcess(userMeal, dayExcess.get(getDate(userMeal))));
-                    }
-                };
+                return (result, userMeal) -> calcExcessAndFilteredByTime(dayCalories, dayExcess, result, userMeal, startTime, endTime, caloriesPerDay);
             }
 
             @Override
@@ -125,7 +109,7 @@ public class UserMealsUtil {
 
             @Override
             public Function<List<UserMealWithExcess>, List<UserMealWithExcess>> finisher() {
-                return  a -> a;
+                return a -> a;
             }
 
             @Override
@@ -152,5 +136,25 @@ public class UserMealsUtil {
 
     public static UserMealWithExcess createUserMealWithExcess(UserMeal userMeal, boolean excess) {
         return new UserMealWithExcess(userMeal.getDateTime(), userMeal.getDescription(), userMeal.getCalories(), excess);
+    }
+
+    public static void calcExcessAndFilteredByTime(
+            Map<LocalDate, Integer> dayCalories,
+            Map<LocalDate, AtomicBoolean> dayExcess,
+            List<UserMealWithExcess> result,
+            UserMeal userMeal,
+            LocalTime startTime,
+            LocalTime endTime,
+            int caloriesPerDay
+    ) {
+        dayCalories.merge(getDate(userMeal), userMeal.getCalories(), Integer::sum);
+
+        if (dayExcess.putIfAbsent(getDate(userMeal), new AtomicBoolean(dayCalories.get(getDate(userMeal)) > caloriesPerDay)) != null) {
+            dayExcess.get(getDate(userMeal)).set(dayCalories.get(getDate(userMeal)) > caloriesPerDay);
+        }
+
+        if (isBetweenHalfOpen(getTime(userMeal), startTime, endTime)) {
+            result.add(createUserMealWithExcess(userMeal, dayExcess.get(getDate(userMeal))));
+        }
     }
 }
