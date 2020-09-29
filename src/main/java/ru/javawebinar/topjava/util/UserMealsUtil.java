@@ -78,13 +78,9 @@ public class UserMealsUtil {
         for (UserMeal userMeal : meals) {
             dayCalories.merge(getDate(userMeal), userMeal.getCalories(), Integer::sum);
 
-           /* if (!dayExcess.containsKey(getDate(userMeal))) {
-                dayExcess.put(getDate(userMeal), new AtomicBoolean(dayCalories.get(getDate(userMeal)) > caloriesPerDay));
-            } else {
+            if(dayExcess.putIfAbsent(getDate(userMeal), new AtomicBoolean(dayCalories.get(getDate(userMeal)) > caloriesPerDay)) != null){
                 dayExcess.get(getDate(userMeal)).set(dayCalories.get(getDate(userMeal)) > caloriesPerDay);
-            }*/
-            dayExcess.computeIfAbsent(getDate(userMeal), (k) -> new AtomicBoolean(dayCalories.get(getDate(userMeal)) > caloriesPerDay))
-
+            }
 
             if (isBetweenHalfOpen(getTime(userMeal), startTime, endTime)) {
                 result.add(createUserMealWithExcess(userMeal, dayExcess.get(getDate(userMeal))));
@@ -109,10 +105,8 @@ public class UserMealsUtil {
                 return (result, userMeal) -> {
                     dayCalories.merge(getDate(userMeal), userMeal.getCalories(), Integer::sum);
 
-                    if (!dayExcess.containsKey(getDate(userMeal))) {
-                        dayExcess.put(getDate(userMeal), new AtomicBoolean(dayCalories.get(getDate(userMeal)) > caloriesPerDay));
-                    } else if (dayCalories.get(getDate(userMeal)) > caloriesPerDay) {
-                        dayExcess.get(getDate(userMeal)).set(true);
+                    if(dayExcess.putIfAbsent(getDate(userMeal), new AtomicBoolean(dayCalories.get(getDate(userMeal)) > caloriesPerDay)) != null){
+                        dayExcess.get(getDate(userMeal)).set(dayCalories.get(getDate(userMeal)) > caloriesPerDay);
                     }
 
                     if (isBetweenHalfOpen(getTime(userMeal), startTime, endTime)) {
