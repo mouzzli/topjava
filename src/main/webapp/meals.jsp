@@ -40,6 +40,7 @@
 <h3><a href="index.html">Home</a></h3>
 <hr>
 <h2>Meals</h2>
+<a href="meals?action=newMeal"> Add Meal</a>
 <table class="tg">
     <tbody>
     <tr>
@@ -51,7 +52,7 @@
     </tr>
     <jsp:useBean id="mealsTo" scope="request" type="java.util.List"/>
     <c:forEach var="mealTo" items="${mealsTo}">
-        <tr style="color:${mealTo.excess ? 'Red' : 'Green'}; margin: 2px">
+        <tr style="color:${mealTo.excess ? 'Red' : 'Green'}">
             <fmt:parseDate value="${mealTo.dateTime}" pattern="yyyy-MM-dd'T'HH:mm" var="parsedDateTime" type="date" />
             <td><fmt:formatDate pattern="yyyy-MM-dd HH:mm" value="${parsedDateTime}" /></td>
             <td><c:out value="${mealTo.description}"/></td>
@@ -62,6 +63,5 @@
     </c:forEach>
     </tbody>
 </table>
-<a href="meals?action=newMeal"> Add Meal</a>
 </body>
 </html>

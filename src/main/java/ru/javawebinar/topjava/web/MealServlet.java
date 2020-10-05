@@ -2,7 +2,7 @@ package ru.javawebinar.topjava.web;
 
 import org.slf4j.Logger;
 import ru.javawebinar.topjava.dao.MealsDao;
-import ru.javawebinar.topjava.dao.MealsDaoMemoryRepoImpl;
+import ru.javawebinar.topjava.dao.MealsDaoMemoryRepo;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.model.MealTo;
 import ru.javawebinar.topjava.util.MealsUtil;
@@ -20,13 +20,14 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 public class MealServlet extends HttpServlet {
     private static final Logger log = getLogger(MealServlet.class);
-    private final MealsDao mealsDao;
+    private MealsDao mealsDao;
     private static final String LIST_MEALS = "meals.jsp";
     private static final String INSERT_OR_EDIT = "mealsEdit.jsp";
 
-    public MealServlet() {
-        super();
-        this.mealsDao = new MealsDaoMemoryRepoImpl();
+    @Override
+    public void init() throws ServletException {
+        super.init();
+        mealsDao = new MealsDaoMemoryRepo();
     }
 
     @Override
@@ -37,23 +38,29 @@ public class MealServlet extends HttpServlet {
         String forward;
         String action = request.getParameter("action");
 
-        if (action == null) {
-            forward = LIST_MEALS;
-            request.setAttribute("mealsTo", getMealsTo());
-        } else if (action.equalsIgnoreCase("delete")) {
-            log.debug("delete meal");
-            int mealId = Integer.parseInt(request.getParameter("id"));
-            mealsDao.delete(mealId);
-            response.sendRedirect("meals");
-            request.setAttribute("mealsTo", getMealsTo());
-            return;
-        } else if (action.equalsIgnoreCase("edit")) {
-            int mealId = Integer.parseInt(request.getParameter("id"));
-            forward = INSERT_OR_EDIT;
-            Meal meal = mealsDao.getById(mealId);
-            request.setAttribute("meal", meal);
-        } else {
-            forward = INSERT_OR_EDIT;
+        action = action == null? "": action;
+
+        switch (action) {
+            case "delete":
+                log.debug("delete meal");
+                int mealId = parseIntFromReqParam(request, "id");
+                mealsDao.delete(mealId);
+                response.sendRedirect("meals");
+                return;
+            case "edit":
+                log.debug("forward to mealsEdit.jsp for update meal");
+                mealId = parseIntFromReqParam(request, "id");
+                forward = INSERT_OR_EDIT;
+                Meal meal = mealsDao.getById(mealId);
+                request.setAttribute("meal", meal);
+                break;
+            case "newMeal":
+                log.debug("forward to mealsEdit.jsp for create meal");
+                forward = INSERT_OR_EDIT;
+                break;
+            default:
+                forward = LIST_MEALS;
+                request.setAttribute("mealsTo", getMealsTo());
         }
 
         request.getRequestDispatcher(forward).forward(request, response);
@@ -65,7 +72,7 @@ public class MealServlet extends HttpServlet {
 
         LocalDateTime dateTime = LocalDateTime.parse(request.getParameter("date"));
         String description = request.getParameter("description");
-        int calories = Integer.parseInt(request.getParameter("calories"));
+        int calories = parseIntFromReqParam(request, "calories");
         String mealId = request.getParameter("id");
 
         if (mealId == null || mealId.isEmpty()) {
@@ -76,11 +83,14 @@ public class MealServlet extends HttpServlet {
             mealsDao.update(new Meal(Integer.parseInt(mealId), dateTime, description, calories));
         }
 
-        request.setAttribute("mealsTo", getMealsTo());
-        request.getRequestDispatcher(LIST_MEALS).forward(request, response);
+        response.sendRedirect("meals");
     }
 
     private List<MealTo> getMealsTo() {
         return MealsUtil.filteredByStreams(mealsDao.getAll(), LocalTime.MIN, LocalTime.MAX, 2000);
+    }
+
+    private int parseIntFromReqParam(HttpServletRequest request, String param) {
+        return Integer.parseInt(request.getParameter(param));
     }
 }
