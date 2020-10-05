@@ -26,8 +26,9 @@ public class MealsDaoMemoryRepo implements MealsDao {
 
     @Override
     public Meal create(Meal meal) {
-        meal.setId(id.get());
-        meals.put(id.getAndIncrement(), meal);
+        int idSetter = id.getAndIncrement();
+        meal.setId(idSetter);
+        meals.put(idSetter, meal);
         return meal;
     }
 
@@ -38,8 +39,12 @@ public class MealsDaoMemoryRepo implements MealsDao {
 
     @Override
     public Meal update(Meal meal) {
-        meals.put(meal.getId(), meal);
-        return meal;
+        if (meals.containsKey(meal.getId())) {
+            meals.put(meal.getId(), meal);
+            return meal;
+        } else {
+            return null;
+        }
     }
 
     @Override
