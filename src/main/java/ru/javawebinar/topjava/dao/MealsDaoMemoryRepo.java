@@ -39,12 +39,7 @@ public class MealsDaoMemoryRepo implements MealsDao {
 
     @Override
     public Meal update(Meal meal) {
-        if (meals.containsKey(meal.getId())) {
-            meals.put(meal.getId(), meal);
-            return meal;
-        } else {
-            return null;
-        }
+       return meals.computeIfPresent(meal.getId(),(k, v) -> v = meal);
     }
 
     @Override
