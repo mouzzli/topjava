@@ -12,7 +12,7 @@ import static ru.javawebinar.topjava.util.ValidationUtil.*;
 
 @Service
 public class MealService {
-    
+
     private  final MealRepository repository;
 
     @Autowired
@@ -30,7 +30,6 @@ public class MealService {
     }
 
     public void update(Meal meal, int userId) {
-        assureIdConsistent(meal, userId);
         checkNotFoundWithId(repository.save(meal, userId), meal.getId());
     }
 
