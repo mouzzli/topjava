@@ -2,7 +2,6 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="fn" uri="http://topjava.javawebinar.ru/functions" %>
-<%--<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>--%>
 <html>
 <head>
     <title>Meal list</title>
@@ -14,6 +13,33 @@
         .excess {
             color: red;
         }
+
+        div.field {
+            padding-bottom: 5px;
+        }
+
+        div.field label {
+            display: block;
+            float: left;
+            width: 100px;
+            height: 15px;
+        }
+
+        div.field input{
+            width: 180px;
+        }
+
+        div.button{
+            padding: 10px;
+        }
+
+        dt {
+            display: inline-block;
+        }
+
+        dd {
+            display: inline-block;
+        }
     </style>
 </head>
 <body>
@@ -21,23 +47,27 @@
     <h3><a href="index.html">Home</a></h3>
     <hr/>
     <h2>Meals</h2>
-
-    <form method="get" action="meals">
+    <form method="get" action="meals" class="filter">
         <input type="hidden" name="action" value="filtered"/>
-        <dl>
-            <dt>From Date:</dt>
-            <dd><input type="date" value="" name="dateFrom" required></dd>
-        </dl>
-        <dl>
-            <dt>To Date:</dt>
-            <dd><input type="date" value="" size=40 name="dateTo" required></dd>
-        </dl>
-        <dl>
-            <dt>From Time:</dt>
-            <dd><input type="time" value="" name="timeFrom" required></dd>
-            <dt>To Time:</dt>
-            <dd><input type="time" value="" name="timeTo" required></dd>
-        </dl>
+        <div class="field">
+            <label>From Date: </label>
+            <input name="dateFrom" type="date" value="${param.dateFrom}" >
+        </div>
+
+        <div class="field">
+            <label>To Date: </label>
+            <input name="dateTo" type="date" value="${param.dateTo}" >
+        </div>
+
+        <div class="field">
+            <label>From Time: </label>
+            <input name="timeFrom" type="time" value="${param.timeFrom}" >
+        </div>
+
+        <div class="field">
+            <label>From Time: </label>
+            <input name="timeTo" type="time" value="${param.timeTo}" >
+        </div>
         <button type="submit">Filter</button>
     </form>
 

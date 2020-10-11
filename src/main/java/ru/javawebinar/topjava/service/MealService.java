@@ -21,7 +21,6 @@ public class MealService {
     }
 
     public Meal create(Meal meal, int userId) {
-        checkNew(meal);
         return repository.save(meal, userId);
     }
 
@@ -41,7 +40,7 @@ public class MealService {
         return repository.getAll(userId);
     }
 
-    public List<Meal> getAllWithFilter(int userId, LocalDate startTime, LocalDate endTime ) {
-        return repository.getAllWithFilter(userId, startTime, endTime);
+    public List<Meal> getAllWithFilter(int userId, LocalDate startDate, LocalDate endDate ) {
+        return repository.getAllWithFilter(userId, startDate, endDate);
     }
 }

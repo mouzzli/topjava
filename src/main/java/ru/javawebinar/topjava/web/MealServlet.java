@@ -3,6 +3,7 @@ package ru.javawebinar.topjava.web;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
+import org.springframework.util.StringUtils;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.web.meal.MealRestController;
 
@@ -48,7 +49,7 @@ public class MealServlet extends HttpServlet {
         if (meal.getId() == null) {
             controller.create(meal);
         } else {
-            controller.update(meal);
+            controller.update(meal, getId(request));
         }
         response.sendRedirect("meals");
     }
@@ -72,10 +73,11 @@ public class MealServlet extends HttpServlet {
                 request.getRequestDispatcher("/mealForm.jsp").forward(request, response);
                 break;
             case "filtered":
-                LocalDate localDateFrom = LocalDate.parse(request.getParameter("dateFrom"));
-                LocalDate localDateTo = LocalDate.parse(request.getParameter("dateTo"));
-                LocalTime localTimeFrom = LocalTime.parse(request.getParameter("timeFrom"));
-                LocalTime localTimeTo = LocalTime. parse(request.getParameter("timeTo"));
+                LocalDate localDateFrom = parseDate(request.getParameter("dateFrom"));
+                LocalDate localDateTo = parseDate(request.getParameter("dateTo"));
+                LocalTime localTimeFrom = parseTime(request.getParameter("timeTo"));
+                LocalTime localTimeTo = parseTime(request.getParameter("timeFrom"));
+
                 request.setAttribute("meals", controller.getAllWithFilter(localDateFrom, localDateTo, localTimeFrom, localTimeTo));
                 request.getRequestDispatcher("/meals.jsp").forward(request, response);
                 break;
@@ -90,5 +92,13 @@ public class MealServlet extends HttpServlet {
     private int getId(HttpServletRequest request) {
         String paramId = Objects.requireNonNull(request.getParameter("id"));
         return Integer.parseInt(paramId);
+    }
+
+    private LocalDate parseDate(String param) {
+        System.out.println(param);
+        return StringUtils.isEmpty(param) ? null : LocalDate.parse(param);
+    }
+    private LocalTime parseTime(String param) {
+        return StringUtils.isEmpty(param) ? null : LocalTime.parse(param);
     }
 }

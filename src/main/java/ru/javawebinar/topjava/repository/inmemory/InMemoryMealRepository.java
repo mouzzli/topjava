@@ -56,17 +56,17 @@ public class InMemoryMealRepository implements MealRepository {
     @Override
     public List<Meal> getAll(int userId) {
         log.info("getAll by userId {}", userId);
-        return getAllSortedAndFiltered( meal -> meal.getUserID() == userId);
+        return getAllSortedAndFilteredByPredicate(meal -> meal.getUserID() == userId);
 
     }
 
     @Override
     public List<Meal> getAllWithFilter(int userId, LocalDate startDate, LocalDate endDate) {
         log.info("getAllWithFilter by userId {}", userId);
-        return  getAllSortedAndFiltered( meal -> meal.getUserID() == userId && DateTimeUtil.isBetweenHalfOpen(meal.getDate(), startDate, endDate));
+        return  getAllSortedAndFilteredByPredicate(meal -> meal.getUserID() == userId && DateTimeUtil.isBetweenHalfOpen(meal.getDate(), startDate, endDate));
     }
 
-    private List<Meal> getAllSortedAndFiltered (Predicate<Meal> filter) {
+    private List<Meal> getAllSortedAndFilteredByPredicate(Predicate<Meal> filter) {
         return repository.values().stream()
                 .filter(filter)
                 .sorted(Comparator.comparing(Meal::getDate).reversed())
