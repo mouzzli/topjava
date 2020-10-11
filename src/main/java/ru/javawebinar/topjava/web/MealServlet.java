@@ -75,8 +75,8 @@ public class MealServlet extends HttpServlet {
             case "filtered":
                 LocalDate localDateFrom = parseDate(request.getParameter("dateFrom"));
                 LocalDate localDateTo = parseDate(request.getParameter("dateTo"));
-                LocalTime localTimeFrom = parseTime(request.getParameter("timeTo"));
-                LocalTime localTimeTo = parseTime(request.getParameter("timeFrom"));
+                LocalTime localTimeFrom = parseTime(request.getParameter("timeFrom"));
+                LocalTime localTimeTo = parseTime(request.getParameter("timeTo"));
 
                 request.setAttribute("meals", controller.getAllWithFilter(localDateFrom, localDateTo, localTimeFrom, localTimeTo));
                 request.getRequestDispatcher("/meals.jsp").forward(request, response);
