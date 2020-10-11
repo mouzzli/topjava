@@ -65,7 +65,7 @@
         </div>
 
         <div class="field">
-            <label>From Time: </label>
+            <label>To Time: </label>
             <input name="timeTo" type="time" value="${param.timeTo}" >
         </div>
         <button type="submit">Filter</button>

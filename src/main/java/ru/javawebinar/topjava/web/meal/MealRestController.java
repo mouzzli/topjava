@@ -29,7 +29,7 @@ public class MealRestController {
 
     public Meal get(int id) {
         int userId = SecurityUtil.authUserId();
-        log.info("get {} by userId {}", id, userId );
+        log.info("get {} by userId {}", id, userId);
         return service.get(id, userId);
     }
 
@@ -60,6 +60,11 @@ public class MealRestController {
     }
 
     public List<MealTo> getAllWithFilter(LocalDate startDate, LocalDate endDate, LocalTime startTime, LocalTime endTime) {
+        startDate = startDate == null ? LocalDate.MIN : startDate;
+        endDate = endDate == null ? LocalDate.MAX : endDate;
+        startTime = startTime == null ? LocalTime.MIN : startTime;
+        endTime = endTime == null ? LocalTime.MAX : endTime;
+
         int userId = SecurityUtil.authUserId();
         log.info("getAllWithFilter by userId {}", userId);
         return MealsUtil.getFilteredTos(service.getAllWithFilter(userId, startDate, endDate), SecurityUtil.authUserCaloriesPerDay(), startTime, endTime);

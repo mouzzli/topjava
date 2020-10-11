@@ -12,8 +12,7 @@ import static ru.javawebinar.topjava.util.ValidationUtil.*;
 
 @Service
 public class MealService {
-
-    private  final MealRepository repository;
+    private final MealRepository repository;
 
     @Autowired
     public MealService(MealRepository repository) {
@@ -32,7 +31,7 @@ public class MealService {
         checkNotFoundWithId(repository.save(meal, userId), meal.getId());
     }
 
-    public Meal get(int id ,int userId) {
+    public Meal get(int id, int userId) {
         return checkNotFoundWithId(repository.get(id, userId), id);
     }
 
@@ -40,7 +39,7 @@ public class MealService {
         return repository.getAll(userId);
     }
 
-    public List<Meal> getAllWithFilter(int userId, LocalDate startDate, LocalDate endDate ) {
+    public List<Meal> getAllWithFilter(int userId, LocalDate startDate, LocalDate endDate) {
         return repository.getAllWithFilter(userId, startDate, endDate);
     }
 }

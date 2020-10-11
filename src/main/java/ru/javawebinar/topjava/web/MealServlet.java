@@ -19,7 +19,6 @@ import java.time.temporal.ChronoUnit;
 import java.util.Objects;
 
 public class MealServlet extends HttpServlet {
-
     private MealRestController controller;
     private ConfigurableApplicationContext context;
 
@@ -38,15 +37,13 @@ public class MealServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         request.setCharacterEncoding("UTF-8");
         String id = request.getParameter("id");
-        String userId = request.getParameter("userId");
 
         Meal meal = new Meal(id.isEmpty() ? null : Integer.valueOf(id),
                 LocalDateTime.parse(request.getParameter("dateTime")),
                 request.getParameter("description"),
-                Integer.parseInt(request.getParameter("calories")),
-                userId.isEmpty() ? null : Integer.valueOf(userId));
+                Integer.parseInt(request.getParameter("calories")));
 
-        if (meal.getId() == null) {
+        if (meal.isNew()) {
             controller.create(meal);
         } else {
             controller.update(meal, getId(request));
@@ -95,9 +92,9 @@ public class MealServlet extends HttpServlet {
     }
 
     private LocalDate parseDate(String param) {
-        System.out.println(param);
         return StringUtils.isEmpty(param) ? null : LocalDate.parse(param);
     }
+
     private LocalTime parseTime(String param) {
         return StringUtils.isEmpty(param) ? null : LocalTime.parse(param);
     }
