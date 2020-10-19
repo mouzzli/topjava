@@ -50,7 +50,7 @@ public class MealServiceTest {
 
     @Test
     public void getNotBelong() {
-        assertThrows(NotFoundException.class, () -> service.get(MEAL_USER_ID + 3, ADMIN_ID));
+        assertThrows(NotFoundException.class, () -> service.get(MEAL_USER_ID, ADMIN_ID));
     }
 
     @Test
@@ -66,7 +66,7 @@ public class MealServiceTest {
 
     @Test
     public void deleteNotBelong() {
-        assertThrows(NotFoundException.class, () -> service.get(MEAL_ADMIN_ID + 2, USER_ID));
+        assertThrows(NotFoundException.class, () -> service.get(MEAL_ADMIN_ID, USER_ID));
     }
 
     @Test
@@ -90,14 +90,14 @@ public class MealServiceTest {
 
     @Test
     public void update() {
-        Meal updated = MealTestData.getUpdated(MEAL_ADMIN_ID + 1);
+        Meal updated = MealTestData.getUpdated(MEAL_ADMIN_ID);
         service.update(new Meal(updated), ADMIN_ID);
-        assertMatch(service.get(MEAL_ADMIN_ID + 1, ADMIN_ID), updated);
+        assertMatch(service.get(MEAL_ADMIN_ID, ADMIN_ID), updated);
     }
 
     @Test
     public void updateNotBelong() {
-        Meal updated = MealTestData.getUpdated(MEAL_ADMIN_ID + 1);
+        Meal updated = MealTestData.getUpdated(MEAL_ADMIN_ID);
         assertThrows(NotFoundException.class, () -> service.update(updated, USER_ID));
     }
 
