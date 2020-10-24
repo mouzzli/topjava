@@ -1,7 +1,6 @@
 package ru.javawebinar.topjava.service;
 
 import org.junit.*;
-import org.junit.rules.Stopwatch;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,7 +12,6 @@ import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.context.junit4.SpringRunner;
 import ru.javawebinar.topjava.JUnitTestTimeInfo;
 import ru.javawebinar.topjava.model.Meal;
-import ru.javawebinar.topjava.repository.inmemory.InMemoryMealRepository;
 import ru.javawebinar.topjava.util.exception.NotFoundException;
 
 import java.time.LocalDate;
@@ -31,7 +29,7 @@ import static ru.javawebinar.topjava.UserTestData.USER_ID;
 @RunWith(SpringRunner.class)
 @Sql(scripts = "classpath:db/populateDB.sql", config = @SqlConfig(encoding = "UTF-8"))
 public class MealServiceTest {
-    private static final Logger log = LoggerFactory.getLogger(InMemoryMealRepository.class);
+    private static final Logger log = LoggerFactory.getLogger(MealServiceTest.class);
 
     @Rule
     public JUnitTestTimeInfo stopwatch = new JUnitTestTimeInfo();
