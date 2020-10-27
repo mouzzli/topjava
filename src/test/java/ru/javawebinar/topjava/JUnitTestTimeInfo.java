@@ -9,7 +9,6 @@ import org.slf4j.LoggerFactory;
 
 public class JUnitTestTimeInfo extends Stopwatch {
     private static final Logger log = LoggerFactory.getLogger(JUnitTestTimeInfo.class);
-
     public final static StringBuilder result;
 
     static {
