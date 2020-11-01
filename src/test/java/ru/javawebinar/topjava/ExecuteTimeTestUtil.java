@@ -25,5 +25,6 @@ public class ExecuteTimeTestUtil extends Stopwatch {
                 "\n---------------------------------" +
                 results +
                 "\n---------------------------------");
+        results.setLength(0);
     }
 }

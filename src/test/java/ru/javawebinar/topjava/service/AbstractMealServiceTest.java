@@ -38,7 +38,7 @@ public abstract class AbstractMealServiceTest {
     public ExecuteTimeTestUtil executeTimeTestUtil = new ExecuteTimeTestUtil();
 
     @Autowired
-    private MealService service;
+    protected MealService service;
 
     @AfterClass
     public static void printResult() {
