@@ -9,8 +9,7 @@ import java.util.concurrent.TimeUnit;
 
 public class ExecuteTimeTestUtil extends Stopwatch {
     private static final Logger log = LoggerFactory.getLogger("result");
-    public final static StringBuilder results = new StringBuilder();
-
+    public static final StringBuilder results = new StringBuilder();
 
     @Override
     protected void finished(long nanos, Description description) {
