@@ -27,7 +27,7 @@ public class JspMealController extends AbstractMealController {
         super(service);
     }
 
-    @GetMapping("")
+    @GetMapping
     public String meals(Model model) {
         model.addAttribute("meals", getAll());
         return "/meals";
@@ -39,7 +39,7 @@ public class JspMealController extends AbstractMealController {
         return "redirect:/meals";
     }
 
-    @GetMapping("/filter")
+    @PostMapping("/filter")
     public String filter(HttpServletRequest request, Model model) {
         LocalDate startDate = parseLocalDate(request.getParameter("startDate"));
         LocalDate endDate = parseLocalDate(request.getParameter("endDate"));
@@ -61,7 +61,7 @@ public class JspMealController extends AbstractMealController {
         return "mealForm";
     }
 
-    @PostMapping("/meals")
+    @PostMapping
     public String save(HttpServletRequest request) {
         Meal meal = new Meal(
                 LocalDateTime.parse(request.getParameter("dateTime")),
