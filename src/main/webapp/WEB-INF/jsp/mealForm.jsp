@@ -7,7 +7,6 @@
 <body>
 <jsp:include page="fragments/bodyHeader.jsp"/>
 <section>
-    <h3><a href="index.html">Home</a></h3>
     <hr>
     <h2>${param.action == 'create' ? 'Create meal' : 'Edit meal'}</h2>
     <jsp:useBean id="meal" type="ru.javawebinar.topjava.model.Meal" scope="request"/>
@@ -25,10 +24,10 @@
             <dt><spring:message code="meal.calories"/></dt>
             <dd><input type="number" value="${meal.calories}" name="calories" required></dd>
         </dl>
-        <button type="submit">Save</button>
-        <button onclick="window.history.back()" type="button">Cancel</button>
+        <button type="submit"><spring:message code="mealForm.save"/></button>
+        <button onclick="window.history.back()" type="button"><spring:message code="mealForm.cancel"/></button>
     </form>
 </section>
 </body>
-<jsp:include page="fragments/bodyHeader.jsp"/>
+<jsp:include page="fragments/footer.jsp"/>
 </html>
