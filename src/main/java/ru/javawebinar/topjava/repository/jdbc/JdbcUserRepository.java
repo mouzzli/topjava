@@ -44,12 +44,16 @@ public class JdbcUserRepository implements UserRepository {
         if (user.isNew()) {
             Number newKey = insertUser.executeAndReturnKey(parameterSource);
             user.setId(newKey.intValue());
+            addRoles(user);
+            return user;
         } else if (namedParameterJdbcTemplate.update("""
                    UPDATE users SET name=:name, email=:email, password=:password, 
                    registered=:registered, enabled=:enabled, calories_per_day=:caloriesPerDay WHERE id=:id
                 """, parameterSource) == 0) {
             return null;
         }
+        deleteRoles(user);
+        addRoles(user);
         return user;
     }
 
@@ -61,19 +65,38 @@ public class JdbcUserRepository implements UserRepository {
 
     @Override
     public User get(int id) {
-        List<User> users = jdbcTemplate.query("SELECT * FROM users WHERE id=?", ROW_MAPPER, id);
+        List<User> users = jdbcTemplate.query("SELECT id, email, name, password, calories_per_day, enabled, string_agg(role, ',') AS roles " +
+                        "FROM users LEFT JOIN user_roles ON users.id=user_roles.user_id " +
+                        "WHERE users.id = ? GROUP BY users.id"
+                , ROW_MAPPER, id);
         return DataAccessUtils.singleResult(users);
     }
 
     @Override
     public User getByEmail(String email) {
 //        return jdbcTemplate.queryForObject("SELECT * FROM users WHERE email=?", ROW_MAPPER, email);
-        List<User> users = jdbcTemplate.query("SELECT * FROM users WHERE email=?", ROW_MAPPER, email);
+        List<User> users = jdbcTemplate.query("SELECT id, email, name, password, calories_per_day, enabled, string_agg(role, ',') AS roles " +
+                        "FROM users LEFT JOIN user_roles ON users.id=user_roles.user_id " +
+                        "WHERE users.email =? GROUP BY users.id",
+                ROW_MAPPER, email);
         return DataAccessUtils.singleResult(users);
     }
 
     @Override
     public List<User> getAll() {
-        return jdbcTemplate.query("SELECT * FROM users ORDER BY name, email", ROW_MAPPER);
+        return jdbcTemplate.query("SELECT id, email, name, password, calories_per_day, enabled, string_agg(role, ',') AS roles FROM users LEFT JOIN user_roles ON users.id=user_roles.user_id " +
+                "GROUP BY users.id ORDER BY users.id DESC", ROW_MAPPER);
+    }
+
+    public void deleteRoles(User u) {
+        jdbcTemplate.update("DELETE FROM user_roles WHERE user_id =?", u.getId());
+    }
+
+    public void addRoles(User u) {
+        jdbcTemplate.batchUpdate("INSERT INTO user_roles (user_id, role) VALUES (?, ?)", u.getRoles(), u.getRoles().size(),
+                (preparedStatement, role) -> {
+                    preparedStatement.setInt(1, u.getId());
+                    preparedStatement.setString(2, role.name());
+                });
     }
 }
