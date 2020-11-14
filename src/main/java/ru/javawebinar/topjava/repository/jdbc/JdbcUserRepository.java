@@ -11,11 +11,10 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import ru.javawebinar.topjava.model.User;
 import ru.javawebinar.topjava.repository.UserRepository;
+import ru.javawebinar.topjava.util.ValidationUtil;
 
-import javax.validation.*;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
+
 
 @Repository
 @Transactional(readOnly = true)
@@ -29,27 +28,21 @@ public class JdbcUserRepository implements UserRepository {
 
     private final SimpleJdbcInsert insertUser;
 
-    private final Validator validator;
-
     @Autowired
-    public JdbcUserRepository(JdbcTemplate jdbcTemplate, NamedParameterJdbcTemplate namedParameterJdbcTemplate, Validator validator) {
+    public JdbcUserRepository(JdbcTemplate jdbcTemplate, NamedParameterJdbcTemplate namedParameterJdbcTemplate) {
         this.insertUser = new SimpleJdbcInsert(jdbcTemplate)
                 .withTableName("users")
                 .usingGeneratedKeyColumns("id");
 
         this.jdbcTemplate = jdbcTemplate;
         this.namedParameterJdbcTemplate = namedParameterJdbcTemplate;
-        this.validator = validator;
     }
 
     @Override
     @Transactional
     public User save(User user) {
         BeanPropertySqlParameterSource parameterSource = new BeanPropertySqlParameterSource(user);
-        Set<ConstraintViolation<User>> violations = validator.validate(user);
-        if (!violations.isEmpty()) {
-            throw new ConstraintViolationException(new HashSet<ConstraintViolation<?>>(violations));
-        }
+        ValidationUtil.validate(user);
 
         if (user.isNew()) {
             Number newKey = insertUser.executeAndReturnKey(parameterSource);
@@ -77,8 +70,8 @@ public class JdbcUserRepository implements UserRepository {
     public User get(int id) {
         List<User> users = jdbcTemplate.query("SELECT id, email, name, password, calories_per_day, enabled, string_agg(role, ',') AS roles " +
                         "FROM users LEFT JOIN user_roles ON users.id=user_roles.user_id " +
-                        "WHERE users.id = ? GROUP BY users.id"
-                , ROW_MAPPER, id);
+                        "WHERE users.id = ? GROUP BY users.id",
+                ROW_MAPPER, id);
         return DataAccessUtils.singleResult(users);
     }
 
@@ -94,15 +87,15 @@ public class JdbcUserRepository implements UserRepository {
     @Override
     public List<User> getAll() {
         return jdbcTemplate.query("SELECT id, email, name, password, calories_per_day, enabled, string_agg(role, ',') AS roles FROM users LEFT JOIN user_roles ON users.id=user_roles.user_id " +
-                "GROUP BY users.id ORDER BY users.id DESC", ROW_MAPPER);
+                "GROUP BY users.id, users.email ORDER BY users.id DESC , users.email DESC ", ROW_MAPPER);
     }
 
-    public void deleteRoles(User u) {
+    private void deleteRoles(User u) {
         jdbcTemplate.update("DELETE FROM user_roles WHERE user_id =?", u.getId());
     }
 
-    public void addRoles(User u) {
-        if(u.getId() != null) {
+    private void addRoles(User u) {
+        if (u.getId() != null && u.getRoles() != null) {
             jdbcTemplate.batchUpdate("INSERT INTO user_roles (user_id, role) VALUES (?, ?)", u.getRoles(), u.getRoles().size(),
                     (preparedStatement, role) -> {
                         preparedStatement.setInt(1, u.getId());

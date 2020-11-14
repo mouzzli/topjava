@@ -1,10 +1,24 @@
 package ru.javawebinar.topjava.util;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import ru.javawebinar.topjava.model.AbstractBaseEntity;
 import ru.javawebinar.topjava.util.exception.NotFoundException;
 
+import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
+import javax.validation.Validation;
+import javax.validation.Validator;
+import java.util.Set;
+
 public class ValidationUtil {
     private ValidationUtil() {
+    }
+
+    @Autowired
+    private static Validator validator;
+
+    static {
+        validator = Validation.buildDefaultValidatorFactory().getValidator();
     }
 
     public static <T> T checkNotFoundWithId(T object, int id) {
@@ -51,5 +65,12 @@ public class ValidationUtil {
             result = cause;
         }
         return result;
+    }
+
+    public static <T> void validate(T t) {
+        Set<ConstraintViolation<T>> violations = validator.validate(t);
+        if (!violations.isEmpty()) {
+            throw new ConstraintViolationException(violations);
+        }
     }
 }
