@@ -9,11 +9,12 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
+import ru.javawebinar.topjava.model.Role;
 import ru.javawebinar.topjava.model.User;
 import ru.javawebinar.topjava.repository.UserRepository;
 import ru.javawebinar.topjava.util.ValidationUtil;
 
-import java.util.List;
+import java.util.*;
 
 
 @Repository
@@ -68,26 +69,21 @@ public class JdbcUserRepository implements UserRepository {
 
     @Override
     public User get(int id) {
-        List<User> users = jdbcTemplate.query("SELECT id, email, name, password, calories_per_day, enabled, string_agg(role, ',') AS roles " +
-                        "FROM users LEFT JOIN user_roles ON users.id=user_roles.user_id " +
-                        "WHERE users.id = ? GROUP BY users.id",
-                ROW_MAPPER, id);
-        return DataAccessUtils.singleResult(users);
+        List<User> users = jdbcTemplate.query("SELECT * FROM users WHERE users.id =?", ROW_MAPPER, id);
+        return DataAccessUtils.singleResult(getRoles(users));
     }
 
     @Override
     public User getByEmail(String email) {
-        List<User> users = jdbcTemplate.query("SELECT id, email, name, password, calories_per_day, enabled, string_agg(role, ',') AS roles " +
-                        "FROM users LEFT JOIN user_roles ON users.id=user_roles.user_id " +
-                        "WHERE users.email =? GROUP BY users.id",
-                ROW_MAPPER, email);
-        return DataAccessUtils.singleResult(users);
+        List<User> users = jdbcTemplate.query("SELECT * FROM users WHERE users.email =?", ROW_MAPPER, email);
+        return DataAccessUtils.singleResult(getRoles(users));
     }
+
 
     @Override
     public List<User> getAll() {
-        return jdbcTemplate.query("SELECT id, email, name, password, calories_per_day, enabled, string_agg(role, ',') AS roles FROM users LEFT JOIN user_roles ON users.id=user_roles.user_id " +
-                "GROUP BY users.id, users.email ORDER BY users.id DESC , users.email DESC ", ROW_MAPPER);
+        List<User> users = jdbcTemplate.query("SELECT * FROM users ORDER BY name, email", ROW_MAPPER);
+        return getRoles(users);
     }
 
     private void deleteRoles(User u) {
@@ -102,5 +98,19 @@ public class JdbcUserRepository implements UserRepository {
                         preparedStatement.setString(2, role.name());
                     });
         }
+    }
+
+    private List<User> getRoles(List<User> user) {
+        Map<Integer, Set<Role>> roles = new HashMap<>();
+        jdbcTemplate.query("SELECT * FROM user_roles", rs -> {
+            roles.merge(rs.getInt("user_id"),
+                    EnumSet.of(Role.valueOf(rs.getString("role"))),
+                    (oldValue, newValue) -> {
+                        oldValue.addAll(newValue);
+                        return oldValue;
+                    });
+        });
+        user.forEach(u -> u.setRoles(roles.get(u.getId())));
+        return user;
     }
 }
