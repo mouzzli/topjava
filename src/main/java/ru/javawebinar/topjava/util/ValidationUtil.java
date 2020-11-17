@@ -14,7 +14,6 @@ public class ValidationUtil {
     private ValidationUtil() {
     }
 
-    @Autowired
     private static Validator validator;
 
     static {
