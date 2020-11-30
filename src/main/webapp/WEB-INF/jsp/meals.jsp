@@ -10,7 +10,7 @@
 <jsp:include page="fragments/bodyHeader.jsp"/>
 
 <%--Filter--%>
-<form method="get" action="meals/filter">
+<form id="filter">
     <dl>
         <dt><spring:message code="meal.startDate"/>:</dt>
         <dd><input type="date" name="startDate" value="${param.startDate}"></dd>
@@ -27,8 +27,9 @@
         <dt><spring:message code="meal.endTime"/>:</dt>
         <dd><input type="time" name="endTime" value="${param.endTime}"></dd>
     </dl>
-    <button type="submit"><spring:message code="meal.filter"/></button>
 </form>
+<button onclick="filter()"><spring:message code="meal.filter"/></button>
+
 
 <%--TABLE--%>
 <div class="jumbotron pt-4">
