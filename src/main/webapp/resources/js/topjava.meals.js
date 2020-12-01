@@ -47,3 +47,7 @@ function filter() {
         successNoty("Filtered");
     });
 }
+
+function clean() {
+    $('#filter')[0].reset();
+}
