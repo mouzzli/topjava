@@ -40,14 +40,14 @@ $(function () {
 function filter() {
     $.ajax({
         type: "GET",
-        url: "meals/filter",
+        url: ctx.ajaxUrl + "filter/",
         data: $("#filter").serialize(),
     }).done(function (data) {
-        ctx.datatableApi.clear().rows.add(data).draw();
-        successNoty("Filtered");
+        addRows(data);
     });
 }
 
 function clean() {
     $('#filter')[0].reset();
+    $.get(ctx.ajaxUrl, updateTable());
 }

@@ -33,8 +33,12 @@ function deleteRow(id) {
 
 function updateTable() {
     $.get(ctx.ajaxUrl, function (data) {
-        ctx.datatableApi.clear().rows.add(data).draw();
+       addRows(data)
     });
+}
+
+function addRows(data) {
+    ctx.datatableApi.clear().rows.add(data).draw()
 }
 
 function save() {
@@ -44,7 +48,7 @@ function save() {
         data: form.serialize()
     }).done(function () {
         $("#editRow").modal("hide");
-        updateTable();
+        updateTable()
         successNoty("Saved");
     });
 }
