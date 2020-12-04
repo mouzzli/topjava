@@ -1,4 +1,5 @@
-var ctx;
+var ctx, mealAjaxUrl = "profile/meals/";
+
 
 function updateFilteredTable() {
     $.ajax({
@@ -13,15 +14,27 @@ function clearFilter() {
     $.get("profile/meals/", updateTableByData);
 }
 
+// $(document).ready(function () {
 $(function () {
+    // https://stackoverflow.com/a/5064235/548473
     ctx = {
-        ajaxUrl: "profile/meals/",
+        ajaxUrl: mealAjaxUrl,
         datatableApi: $("#datatable").DataTable({
+            "ajax": {
+                "url": mealAjaxUrl,
+                "dataSrc": ""
+            },
             "paging": false,
             "info": true,
             "columns": [
                 {
-                    "data": "dateTime"
+                    "data": "dateTime",
+                    "render": function (date, type, row) {
+                        if (type === "display") {
+                            return date.substring(0, 19).replace("T", " ");
+                        }
+                        return date;
+                    }
                 },
                 {
                     "data": "description"
@@ -30,22 +43,31 @@ $(function () {
                     "data": "calories"
                 },
                 {
-                    "defaultContent": "Edit",
-                    "orderable": false
+                    "orderable": false,
+                    "defaultContent": "",
+                    "render": renderEditBtn
                 },
                 {
-                    "defaultContent": "Delete",
-                    "orderable": false
+                    "orderable": false,
+                    "defaultContent": "",
+                    "render": renderDeleteBtn
                 }
             ],
             "order": [
                 [
                     0,
-                    "desc"
+                    "asc"
                 ]
-            ]
+            ],
+            "createdRow": function (row, data, dataIndex) {
+                if (!data.enabled) {
+                    $(row).attr("data-mealExcess", data.excess);
+                }
+            }
         }),
-        updateTable: updateFilteredTable
+        updateTable: function () {
+            $.get(mealAjaxUrl, updateTableByData);
+        }
     };
     makeEditable();
 });
