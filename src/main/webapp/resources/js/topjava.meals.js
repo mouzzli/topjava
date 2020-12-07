@@ -1,6 +1,5 @@
 var ctx, mealAjaxUrl = "profile/meals/";
 
-
 function updateFilteredTable() {
     $.ajax({
         type: "GET",
@@ -31,7 +30,7 @@ $(function () {
                     "data": "dateTime",
                     "render": function (date, type, row) {
                         if (type === "display") {
-                            return date.substring(0, 19).replace("T", " ");
+                            return formatDate(date);
                         }
                         return date;
                     }
@@ -70,4 +69,28 @@ $(function () {
         }
     };
     makeEditable();
+});
+
+var formDate = 'Y-m-d', formTime = 'H:i'
+
+$('#startDate').datetimepicker({
+    timepicker: false,
+    format: formDate
+});
+
+$('#endDate').datetimepicker({
+    timepicker: false,
+    format: formDate
+});
+$('#startTime').datetimepicker({
+    datepicker: false,
+    format: formTime
+});
+$('#endTime').datetimepicker({
+    datepicker: false,
+    format: formTime
+});
+
+$('#dateTime').datetimepicker({
+    format: 'Y-m-d H:i',
 });
