@@ -3,7 +3,7 @@ var ctx, mealAjaxUrl = "profile/meals/";
 function updateFilteredTable() {
     $.ajax({
         type: "GET",
-        url: "profile/meals/filter",
+        url: mealAjaxUrl + "filter",
         data: $("#filter").serialize()
     }).done(updateTableByData);
 }
@@ -64,9 +64,7 @@ $(function () {
                 }
             }
         }),
-        updateTable: function () {
-            $.get(mealAjaxUrl, updateTableByData);
-        }
+        updateTable: updateFilteredTable
     };
     makeEditable();
 });
